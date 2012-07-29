@@ -9,7 +9,8 @@ def tail(args):
   if args.comp:
     spec['comp'] = args.comp
 
-  cursor = db.find(spec,tailable=True)
+  total = db.find(spec).count()
+  cursor = db.find(spec,tailable=True).skip(total-10)
   while cursor.alive:
     try:
       doc=cursor.next()
