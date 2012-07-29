@@ -44,6 +44,8 @@ $(document).ready ->
     $('table').prepend(tr)
   socket.onerror = (ev) ->
 
+  window.rtsocket = socket
+
   levels = $('optgroup[label=Levels] option').map (i,el)->$(el).text()
 
   $('#filter').chosen().change (ev) ->
@@ -60,3 +62,5 @@ $(document).ready ->
       if lvl.length > 0 then String(lvl) else '',
     )
 
+window.onbeforeunload = ->
+  if window.rtsocket: rtsocket.close

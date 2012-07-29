@@ -45,6 +45,7 @@
       return $('table').prepend(tr);
     };
     socket.onerror = function(ev) {};
+    window.lfsocket = socket;
     levels = $('optgroup[label=Levels] option').map(function(i, el) {
       return $(el).text();
     });

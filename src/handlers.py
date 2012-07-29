@@ -1,6 +1,7 @@
 
+import thread
 from tornado import web, template, websocket
-from common import get_db, LEVELS, json_
+from common import get_db, LEVELS, json_, rt_subscribers, stop_signal
 from pymongo import DESCENDING
 
 index_template = template.Template(
@@ -9,7 +10,6 @@ index_template = template.Template(
 db = get_db()
 
 components = db.distinct('comp')
-rt_subscribers = []
 
 class MainHandler(web.RequestHandler):
   def get(self):
@@ -47,30 +47,35 @@ class MainHandler(web.RequestHandler):
     return 0
 
 def tailThread():
-  global rt_subscribers
   from time import sleep
   spec = dict()
   cursor = db.find(spec,tailable=True)
+  myid = str(thread.get_ident())
   while cursor.alive:
+    if stop_signal.has_key(myid):
+      del stop_signal[myid]
+      break
     try:
       doc=cursor.next()
-      for rt_sub in rt_subscribers:
-        rt_sub.write_message(json_(
-          comp=doc['comp'],lvl=doc['lvl'],
-          msg=doc['msg'],tstamp=str(doc['tstamp'])))
+      handler = rt_subscribers[myid]
+      handler.write_message(json_(
+        comp=doc['comp'],lvl=doc['lvl'],
+        msg=doc['msg'],tstamp=str(doc['tstamp'])))
     except StopIteration:
       sleep(1)
 
 class RTHandler(websocket.WebSocketHandler):
   def open(self):
-    global rt_subscribers
-    rt_subscribers.append(self)
     from threading import Thread
-    Thread(target=tailThread).start()
+    self.poller = Thread(target=tailThread)
+    self.poller.daemon = True
+    self.poller.start()
+    self.poller_id = str(self.poller.ident)
+    rt_subscribers[self.poller_id] = self
 
   def on_message(self, message):
     pass
 
   def on_close(self):
-    global rt_subscribers
-    rt_subscribers.remove(self)
+    del rt_subscribers[self.poller_id]
+    stop_signal[self.poller_id] = True

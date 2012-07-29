@@ -17,3 +17,7 @@ def get_db():
 
 def json_(**kwds):
   return json.dumps(kwds)
+
+
+rt_subscribers = {}
+stop_signal = {}
