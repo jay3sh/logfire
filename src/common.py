@@ -1,5 +1,6 @@
 
-from pymongo import Connection,DESCENDING
+import json
+from pymongo import Connection
 
 LEVELS = dict(
   DEBUG   = 0,
@@ -13,3 +14,6 @@ def get_db():
   conn = Connection('localhost', 27017)
   db = conn['LOGFIRE']
   return db.LOGS
+
+def json_(**kwds):
+  return json.dumps(kwds)
