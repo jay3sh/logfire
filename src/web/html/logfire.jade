@@ -12,6 +12,7 @@ html
   body
 
     select(data-placeholder="Filter..",multiple="true",id="filter")
+      option(value="")
       optgroup(label="Components")
         {% for component in components %}
         option(value="{{component}}")
