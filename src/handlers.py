@@ -1,7 +1,10 @@
 
+import json
 import thread
+from threading import Thread
 from tornado import web, template, websocket
-from common import get_db, LEVELS, json_, rt_subscribers, stop_signal
+from common import get_db, LEVELS, json_,\
+  rt_subscribers, stop_signal, poller_specs
 from pymongo import DESCENDING
 
 index_template = template.Template(
@@ -20,6 +23,7 @@ class MainHandler(web.RequestHandler):
     )
     self.write(index_template.generate(**params))
 
+  '''
   def post(self):
     components = self.get_argument('components', None)
     levels = self.get_argument('levels', None)
@@ -46,36 +50,58 @@ class MainHandler(web.RequestHandler):
 
   def get_cache_time(self, path, modified, mime_type):
     return 0
+  '''
 
-def tailThread():
+def tailThread(spec=None, handler=None):
   from time import sleep
-  spec = dict()
-  cursor = db.find(spec,tailable=True)
   myid = str(thread.get_ident())
+
+  cursor = db.find(spec,tailable=True)
   while cursor.alive:
-    if stop_signal.has_key(myid):
+    if stop_signal.has_key(myid) and stop_signal[myid]:
       del stop_signal[myid]
       break
     try:
       doc=cursor.next()
-      handler = rt_subscribers[myid]
       handler.write_message(json_(
-        comp=doc['comp'],lvl=doc['lvl'],
-        msg=doc['msg'],tstamp=str(doc['tstamp'])))
+        comp=doc['comp'],
+        lvl=doc['lvl'],
+        msg=doc['msg'],
+        tstamp=str(doc['tstamp'])))
     except StopIteration:
       sleep(1)
 
 class RTHandler(websocket.WebSocketHandler):
+
+  def makeSpec(self, components, levels):
+    spec = dict()
+    if components:
+      comp = map(str, components.split(','))
+      spec['comp'] = {'$in':comp}
+    if levels:
+      lvl = map(lambda x: LEVELS.index(x), levels.split(','))
+      spec['lvl'] = {'$in':lvl}
+    return spec
+
   def open(self):
-    from threading import Thread
-    self.poller = Thread(target=tailThread)
-    self.poller.daemon = True
-    self.poller.start()
-    self.poller_id = str(self.poller.ident)
-    rt_subscribers[self.poller_id] = self
+    self.poller_id = None
 
   def on_message(self, message):
-    pass
+    msg = json.loads(message)
+    if msg['cmd'] == 'refresh':
+
+      # Stop current poller thread
+      if self.poller_id:
+        stop_signal[self.poller_id] = True 
+        self.poller.join()
+
+      spec = self.makeSpec(msg['comp'],msg['lvl'])
+      self.poller = Thread(target=tailThread,
+        kwargs=dict(spec=spec,handler=self))
+      self.poller.daemon = True
+      self.poller.start()
+      self.poller_id = str(self.poller.ident)
+      stop_signal[self.poller_id] = False
 
   def on_close(self):
     del rt_subscribers[self.poller_id]
