@@ -1,4 +1,33 @@
 
+
+refresh = (components, levels) ->
+  $.ajax(
+    '/'
+    {
+      type : 'POST'
+      data : {
+        components : String(components)
+        levels : String(levels)
+        limit : 25
+        offset : 0
+      }
+      success : (response) ->
+        $('table').empty()
+        if response.result is 'SUCCESS'
+          for row in response.rows
+            tr = $('<tr></tr>')
+              .append($('<td></td>').text(row['tstamp']))
+              .append($('<td></td>').text(row['lvl']))
+              .append($('<td></td>').text(row['comp']))
+
+            msg = row['msg'].replace('\n','<br/>')
+            tr.append($('<td></td>').html(msg))
+            $('table').append(tr)
+
+      error : (jqXhr, txtStatus, errThrown) ->
+    }
+  )
+
 $(document).ready ->
 
   socket = new WebSocket("ws://#{window.location.host}/rt");
@@ -15,37 +44,19 @@ $(document).ready ->
     $('table').prepend(tr)
   socket.onerror = (ev) ->
 
-  $('#filter').chosen()
+  levels = $('optgroup[label=Levels] option').map (i,el)->$(el).text()
 
-  $('#refresh').click ->
-    components = $('#components').val() or ''
-    levels = $('#levels').val() or ''
+  $('#filter').chosen().change (ev) ->
+    comp = []
+    lvl = []
+    for filter in $(@).val()
+      if filter in levels
+        lvl.push(filter)
+      else
+        comp.push(filter)
 
-    $.ajax(
-      '/'
-      {
-        type : 'POST'
-        data : {
-          components : String(components)
-          levels : String(levels)
-          limit : 25
-          offset : 0
-        }
-        success : (response) ->
-          $('table').empty()
-          if response.result is 'SUCCESS'
-            for row in response.rows
-              tr = $('<tr></tr>')
-                .append($('<td></td>').text(row['tstamp']))
-                .append($('<td></td>').text(row['lvl']))
-                .append($('<td></td>').text(row['comp']))
-
-              msg = row['msg'].replace('\n','<br/>')
-              tr.append($('<td></td>').html(msg))
-              $('table').append(tr)
-
-        error : (jqXhr, txtStatus, errThrown) ->
-      }
+    refresh(
+      if comp.length > 0 then String(comp) else '',
+      if lvl.length > 0 then String(lvl) else '',
     )
-
 
