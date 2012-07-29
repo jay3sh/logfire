@@ -32,6 +32,11 @@ $(document).ready ->
 
   levels = $('optgroup[label=Levels] option').map (i,el)->$(el).text()
 
+  $('#rtchoice').iButton({
+    labelOn : 'RealTime',
+    labelOff : 'Manual'
+  })
+
   $('#filter').chosen().change (ev) ->
     comp = []
     lvl = []

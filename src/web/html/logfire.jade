@@ -4,9 +4,12 @@ html
     title LogFire
     script(type="text/javascript",src="web/js/jquery-1.7.1.js")
     script(type="text/javascript",src="web/js/chosen.jquery.min.js")
+    script(type="text/javascript",src="web/js/jquery.easing.1.3.js")
+    script(type="text/javascript",src="web/js/jquery.ibutton.min.js")
     script(type="text/javascript",src="web/js/logfire.js")
 
     link(rel="stylesheet",href="web/css/chosen.css")
+    link(rel="stylesheet",href="web/css/jquery.ibutton.min.css")
     link(rel="stylesheet",href="web/css/logfire.css")
 
   body
@@ -24,6 +27,9 @@ html
           {{level}}
         {% end %}
 
+    &nbsp; &nbsp; &nbsp;
+
+    input(type="checkbox",id="rtchoice")
     &nbsp; &nbsp; &nbsp;
 
     input(type="button",value="Refresh",id="refresh")
