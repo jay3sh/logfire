@@ -2,13 +2,7 @@
 import json
 from pymongo import Connection
 
-LEVELS = dict(
-  DEBUG   = 0,
-  INFO    = 1,
-  NOTICE  = 2,
-  WARNING = 3,
-  ERROR   = 4,
-)
+LEVELS = [ 'DEBUG', 'INFO', 'NOTICE', 'WARNING', 'ERROR' ]
 
 def get_db():
   conn = Connection('localhost', 27017)

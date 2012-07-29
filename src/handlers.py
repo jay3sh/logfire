@@ -10,12 +10,13 @@ index_template = template.Template(
 db = get_db()
 
 components = db.distinct('comp')
+levels = map(lambda x: LEVELS[x], db.distinct('lvl'))
 
 class MainHandler(web.RequestHandler):
   def get(self):
     params = dict(
       components = components,
-      levels = LEVELS.keys(),
+      levels = levels,
     )
     self.write(index_template.generate(**params))
 
