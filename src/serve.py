@@ -3,8 +3,11 @@
 
 def serve(args):
   from tornado import ioloop, web, template, websocket
-  from handlers import MainHandler, RTHandler
 
+  from common import get_db
+  get_db(args.mongohost)
+
+  from handlers import MainHandler, RTHandler
 
   settings = dict(debug=True)
   handler_list = [

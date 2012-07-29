@@ -3,8 +3,8 @@ from common import get_db
 from time import sleep
 
 def tail(args):
-  db = get_db()
 
+  db = get_db(args.mongohost)
   spec = dict()
   if args.comp:
     spec['comp'] = args.comp

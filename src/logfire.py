@@ -18,6 +18,8 @@ def main():
   parser.add_argument('--tail',
     help="Tail logs",
     nargs='?', default=False, const=True)
+  parser.add_argument('--mongohost',
+    help="hostname:port for MongoDB")
 
   parser.add_argument('-p','--port', help="Port for --serve",
     type=int, default=7095)

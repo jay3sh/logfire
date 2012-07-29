@@ -14,7 +14,7 @@ def listen(args):
   rserver = redis.Redis('localhost')
   rserver.subscribe(CHANNEL)
 
-  db = get_db()
+  db = get_db(args.mongohost)
 
   for packet in rserver.listen():
     try:
