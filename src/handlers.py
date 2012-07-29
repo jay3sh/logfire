@@ -3,8 +3,7 @@ import json
 import thread
 from threading import Thread
 from tornado import web, template, websocket
-from common import get_db, LEVELS, json_,\
-  rt_subscribers, stop_signal, poller_specs
+from common import get_db, LEVELS, json_, stop_signal
 from pymongo import DESCENDING
 
 index_template = template.Template(
@@ -47,10 +46,10 @@ class MainHandler(web.RequestHandler):
         .sort('tstamp',direction=DESCENDING)]
 
     self.write(dict(result='SUCCESS',rows=rows))
+  '''
 
   def get_cache_time(self, path, modified, mime_type):
     return 0
-  '''
 
 def tailThread(spec=None, handler=None):
   from time import sleep
@@ -104,5 +103,4 @@ class RTHandler(websocket.WebSocketHandler):
       stop_signal[self.poller_id] = False
 
   def on_close(self):
-    del rt_subscribers[self.poller_id]
     stop_signal[self.poller_id] = True
