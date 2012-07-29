@@ -56,7 +56,7 @@ def tailThread(spec=None, handler=None):
   myid = str(thread.get_ident())
 
   total = db.find(spec).count()
-  cursor = db.find(spec,tailable=True).skip(total-10)
+  cursor = db.find(spec,tailable=True).skip(max(0,total-10))
   while cursor.alive:
     if stop_signal.has_key(myid) and stop_signal[myid]:
       del stop_signal[myid]
