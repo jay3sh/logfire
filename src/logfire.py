@@ -21,6 +21,7 @@ def main():
 
   parser.add_argument('-p','--port', help="Port for --serve",
     type=int, default=7095)
+  parser.add_argument('--comp', help="Component filter for --tail")
 
   args = parser.parse_args()
 
