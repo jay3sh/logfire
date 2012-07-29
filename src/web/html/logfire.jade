@@ -1,0 +1,29 @@
+
+html
+  head
+    title LogFire
+    script(type="text/javascript",src="web/js/jquery-1.7.1.js")
+    script(type="text/javascript",src="web/js/logfire.js")
+
+  body
+    | Components
+    select(id="components",multiple="multiple")
+      {% for component in components %}
+      option(value="{{component}}")
+        {{component}}
+      {% end %}
+
+    &nbsp; &nbsp; &nbsp;
+
+    | Levels
+    select(id="levels",multiple="multiple")
+      {% for level in levels %}
+      option(value="{{level}}")
+        {{level}}
+      {% end %}
+
+    &nbsp; &nbsp; &nbsp;
+
+    input(type="button",value="Refresh",id="refresh")
+
+    table
