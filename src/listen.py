@@ -12,11 +12,12 @@ def listen(args):
   global MSGPATTERN
 
   rserver = redis.Redis('localhost')
-  rserver.subscribe(CHANNEL)
+  pubsub = rserver.pubsub()
+  pubsub.subscribe(CHANNEL)
 
   db = get_db(args.mongohost)
 
-  for packet in rserver.listen():
+  for packet in pubsub.listen():
     try:
       if packet['type'] != 'message': continue
       match = MSGPATTERN.match(packet['data'])
