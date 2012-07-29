@@ -14,6 +14,7 @@
       return $('table').prepend(tr);
     };
     socket.onerror = function(ev) {};
+    $('#filter').chosen();
     return $('#refresh').click(function() {
       var components, levels;
       components = $('#components').val() || '';

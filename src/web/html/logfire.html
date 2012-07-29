@@ -3,15 +3,19 @@
   <head>
     <title>LogFire</title>
     <script type="text/javascript" src="web/js/jquery-1.7.1.js"></script>
+    <script type="text/javascript" src="web/js/chosen.jquery.min.js"></script>
     <script type="text/javascript" src="web/js/logfire.js"></script>
+    <link rel="stylesheet" href="web/css/chosen.css"/>
+    <link rel="stylesheet" href="web/css/logfire.css"/>
   </head>
-  <body>Components
-    <select id="components" multiple="multiple">{% for component in components %}
-      <option value="{{component}}">{{component}}</option>{% end %}
-    </select>&nbsp; &nbsp; &nbsp;
-    Levels
-    <select id="levels" multiple="multiple">{% for level in levels %}
-      <option value="{{level}}">{{level}}</option>{% end %}
+  <body>
+    <select data-placeholder="Filter.." multiple="true" id="filter">
+      <optgroup label="Components">{% for component in components %}
+        <option value="{{component}}">{{component}}</option>{% end %}
+      </optgroup>
+      <optgroup label="Levels">{% for level in levels %}
+        <option value="{{level}}">{{level}}</option>{% end %}
+      </optgroup>
     </select>&nbsp; &nbsp; &nbsp;
     <input type="button" value="Refresh" id="refresh"/>
     <table></table>

@@ -3,24 +3,25 @@ html
   head
     title LogFire
     script(type="text/javascript",src="web/js/jquery-1.7.1.js")
+    script(type="text/javascript",src="web/js/chosen.jquery.min.js")
     script(type="text/javascript",src="web/js/logfire.js")
 
+    link(rel="stylesheet",href="web/css/chosen.css")
+    link(rel="stylesheet",href="web/css/logfire.css")
+
   body
-    | Components
-    select(id="components",multiple="multiple")
-      {% for component in components %}
-      option(value="{{component}}")
-        {{component}}
-      {% end %}
 
-    &nbsp; &nbsp; &nbsp;
-
-    | Levels
-    select(id="levels",multiple="multiple")
-      {% for level in levels %}
-      option(value="{{level}}")
-        {{level}}
-      {% end %}
+    select(data-placeholder="Filter..",multiple="true",id="filter")
+      optgroup(label="Components")
+        {% for component in components %}
+        option(value="{{component}}")
+          {{component}}
+        {% end %}
+      optgroup(label="Levels")
+        {% for level in levels %}
+        option(value="{{level}}")
+          {{level}}
+        {% end %}
 
     &nbsp; &nbsp; &nbsp;
 

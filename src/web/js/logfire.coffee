@@ -15,6 +15,7 @@ $(document).ready ->
     $('table').prepend(tr)
   socket.onerror = (ev) ->
 
+  $('#filter').chosen()
 
   $('#refresh').click ->
     components = $('#components').val() or ''
