@@ -76,8 +76,24 @@ $(document).ready ->
       .append($('<td></td>').text(tstamp))
       .append($('<td></td>').text(row['lvl']))
       .append($('<td></td>').text(row['comp']))
-    msg = row['msg'].replace('\n','<br/>')
+
+    longmsg = shortmsg = row['msg']
+    if row['msg'].indexOf('\n') >= 0
+      msg = shortmsg = row['msg'].substring(0,row['msg'].indexOf('\n'))
+      longmsg = row['msg'].replace('\n','<br/>')
+    else
+      msg = row['msg']
     tr.append($('<td></td>').html(msg))
+
+    tr.data('longmsg', longmsg)
+    tr.data('shortmsg', shortmsg)
+    tr.mouseenter ->
+      if $(@).data('longmsg') is not $(@).data('shortmsg')
+        $(@).find('td:last').empty().html($(@).data('longmsg'))
+    tr.mouseleave ->
+      if $(@).data('longmsg') is not $(@).data('shortmsg')
+        $(@).find('td:last').empty().html($(@).data('shortmsg'))
+
     $('table').prepend(tr)
   socket.onerror = (ev) ->
 
