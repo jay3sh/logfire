@@ -81,19 +81,23 @@ $(document).ready ->
     longmsg = shortmsg = row['msg']
     if row['msg'].indexOf('\n') >= 0
       msg = shortmsg = row['msg'].substring(0,row['msg'].indexOf('\n'))
-      longmsg = row['msg'].replace(/\n/g,'<br/>')
+      longmsg = row['msg'].replace(/\n/g,'<br>')
     else
       msg = row['msg']
     tr.append($('<td></td>').html(msg).addClass('msg'))
 
     tr.data('longmsg', longmsg)
     tr.data('shortmsg', shortmsg)
-    tr.mouseenter ->
+    tr.click ->
+      elem = $(@).find('.msg')
       if $(@).data('longmsg') isnt $(@).data('shortmsg')
-        $(@).find('td:last').empty().html($(@).data('longmsg'))
-    tr.mouseleave ->
-      if $(@).data('longmsg') isnt $(@).data('shortmsg')
-        $(@).find('td:last').empty().html($(@).data('shortmsg'))
+        if elem.html() is $(@).data('longmsg')
+          $(@).find('.msg').empty().html($(@).data('shortmsg'))
+        else
+          $(@).find('.msg').empty().html($(@).data('longmsg'))
+
+    if longmsg isnt shortmsg
+      tr.find('.msg').css('cursor','pointer')
 
     tr.css('color',msgcolors[parseInt(row['lvl'],10)])
 

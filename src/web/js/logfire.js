@@ -100,23 +100,27 @@
       longmsg = shortmsg = row['msg'];
       if (row['msg'].indexOf('\n') >= 0) {
         msg = shortmsg = row['msg'].substring(0, row['msg'].indexOf('\n'));
-        longmsg = row['msg'].replace(/\n/g, '<br/>');
+        longmsg = row['msg'].replace(/\n/g, '<br>');
       } else {
         msg = row['msg'];
       }
       tr.append($('<td></td>').html(msg).addClass('msg'));
       tr.data('longmsg', longmsg);
       tr.data('shortmsg', shortmsg);
-      tr.mouseenter(function() {
+      tr.click(function() {
+        var elem;
+        elem = $(this).find('.msg');
         if ($(this).data('longmsg') !== $(this).data('shortmsg')) {
-          return $(this).find('td:last').empty().html($(this).data('longmsg'));
+          if (elem.html() === $(this).data('longmsg')) {
+            return $(this).find('.msg').empty().html($(this).data('shortmsg'));
+          } else {
+            return $(this).find('.msg').empty().html($(this).data('longmsg'));
+          }
         }
       });
-      tr.mouseleave(function() {
-        if ($(this).data('longmsg') !== $(this).data('shortmsg')) {
-          return $(this).find('td:last').empty().html($(this).data('shortmsg'));
-        }
-      });
+      if (longmsg !== shortmsg) {
+        tr.find('.msg').css('cursor', 'pointer');
+      }
       tr.css('color', msgcolors[parseInt(row['lvl'], 10)]);
       return $('table').prepend(tr);
     };
