@@ -2,6 +2,27 @@
   var getFilters, levels, onetimeQuery, rtChoice, startRealTimeTailing, stopRealTimeTailing,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
+  Date.prototype.getRelativeTimestamp = function() {
+    var currDate, delta, relativeDate, rtstamp, tzoffset;
+    tzoffset = this.getTimezoneOffset() * 60 * 1000;
+    currDate = new Date();
+    relativeDate = new Date(this.getTime() - tzoffset);
+    delta = Math.round((currDate - relativeDate) / 1000);
+    rtstamp = '';
+    if (delta < 60) {
+      rtstamp = delta + ' seconds ago';
+    } else if (delta < (60 * 60)) {
+      rtstamp = Math.round(delta / 60) + ' minutes ago';
+    } else if (delta < (60 * 60 * 24)) {
+      rtstamp = Math.round(delta / (60 * 60)) + ' hours ago';
+    } else if (delta < (60 * 60 * 24 * 31)) {
+      rtstamp = Math.round(delta / (60 * 60 * 24)) + ' days ago';
+    } else {
+      rtstamp = relativeDate.toDateString();
+    }
+    return rtstamp;
+  };
+
   onetimeQuery = function(components, levels) {
     var msg;
     $('table').empty();
@@ -70,9 +91,10 @@
     socket.onopen = function(ev) {};
     socket.onclose = function(ev) {};
     socket.onmessage = function(ev) {
-      var msg, row, tr;
+      var msg, row, tr, tstamp;
       row = JSON.parse(ev.data);
-      tr = $('<tr></tr>').append($('<td></td>').text(row['tstamp'])).append($('<td></td>').text(row['lvl'])).append($('<td></td>').text(row['comp']));
+      tstamp = new Date(Date.parse(row['tstamp'])).getRelativeTimestamp();
+      tr = $('<tr></tr>').append($('<td></td>').text(tstamp)).append($('<td></td>').text(row['lvl'])).append($('<td></td>').text(row['comp']));
       msg = row['msg'].replace('\n', '<br/>');
       tr.append($('<td></td>').html(msg));
       return $('table').prepend(tr);
