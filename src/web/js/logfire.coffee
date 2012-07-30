@@ -18,6 +18,8 @@ Date.prototype.getRelativeTimestamp = ->
     rtstamp = relativeDate.toDateString()
   return rtstamp
 
+msgcolors = ['#999','#000','#520202','#A70505','#F00']
+
 onetimeQuery = (components, levels) ->
   $('table').empty()
   msg = {
@@ -73,9 +75,8 @@ $(document).ready ->
     row = JSON.parse(ev.data)
     tstamp = new Date(Date.parse(row['tstamp'])).getRelativeTimestamp()
     tr = $('<tr></tr>')
-      .append($('<td></td>').text(tstamp))
-      .append($('<td></td>').text(row['lvl']))
-      .append($('<td></td>').text(row['comp']))
+      .append($('<td></td>').text(tstamp).addClass('tstamp'))
+      .append($('<td></td>').text(row['comp']).addClass('comp'))
 
     longmsg = shortmsg = row['msg']
     if row['msg'].indexOf('\n') >= 0
@@ -83,7 +84,7 @@ $(document).ready ->
       longmsg = row['msg'].replace(/\n/g,'<br/>')
     else
       msg = row['msg']
-    tr.append($('<td></td>').html(msg))
+    tr.append($('<td></td>').html(msg).addClass('msg'))
 
     tr.data('longmsg', longmsg)
     tr.data('shortmsg', shortmsg)
@@ -93,6 +94,8 @@ $(document).ready ->
     tr.mouseleave ->
       if $(@).data('longmsg') isnt $(@).data('shortmsg')
         $(@).find('td:last').empty().html($(@).data('shortmsg'))
+
+    tr.css('color',msgcolors[parseInt(row['lvl'],10)])
 
     $('table').prepend(tr)
   socket.onerror = (ev) ->

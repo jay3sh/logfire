@@ -1,5 +1,5 @@
 (function() {
-  var getFilters, levels, onetimeQuery, rtChoice, startRealTimeTailing, stopRealTimeTailing,
+  var getFilters, levels, msgcolors, onetimeQuery, rtChoice, startRealTimeTailing, stopRealTimeTailing,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   Date.prototype.getRelativeTimestamp = function() {
@@ -22,6 +22,8 @@
     }
     return rtstamp;
   };
+
+  msgcolors = ['#999', '#000', '#520202', '#A70505', '#F00'];
 
   onetimeQuery = function(components, levels) {
     var msg;
@@ -94,7 +96,7 @@
       var longmsg, msg, row, shortmsg, tr, tstamp;
       row = JSON.parse(ev.data);
       tstamp = new Date(Date.parse(row['tstamp'])).getRelativeTimestamp();
-      tr = $('<tr></tr>').append($('<td></td>').text(tstamp)).append($('<td></td>').text(row['lvl'])).append($('<td></td>').text(row['comp']));
+      tr = $('<tr></tr>').append($('<td></td>').text(tstamp).addClass('tstamp')).append($('<td></td>').text(row['comp']).addClass('comp'));
       longmsg = shortmsg = row['msg'];
       if (row['msg'].indexOf('\n') >= 0) {
         msg = shortmsg = row['msg'].substring(0, row['msg'].indexOf('\n'));
@@ -102,7 +104,7 @@
       } else {
         msg = row['msg'];
       }
-      tr.append($('<td></td>').html(msg));
+      tr.append($('<td></td>').html(msg).addClass('msg'));
       tr.data('longmsg', longmsg);
       tr.data('shortmsg', shortmsg);
       tr.mouseenter(function() {
@@ -115,6 +117,7 @@
           return $(this).find('td:last').empty().html($(this).data('shortmsg'));
         }
       });
+      tr.css('color', msgcolors[parseInt(row['lvl'], 10)]);
       return $('table').prepend(tr);
     };
     socket.onerror = function(ev) {};

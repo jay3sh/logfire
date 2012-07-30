@@ -1,3 +1,23 @@
 #filter {
   width: 300px;
 }
+table {
+  border-collapse: collapse;
+}
+table td {
+  border-bottom: 1px solid #888;
+  border-top: 1px solid #888;
+}
+table .tstamp {
+  font-size: 70%;
+  font-style: italic;
+  font-family: monospace;
+  white-space: nowrap;
+}
+table .msg {
+  font-family: courier;
+}
+table .comp {
+  font-size: 85%;
+  font-weight: bold;
+}
