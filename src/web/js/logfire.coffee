@@ -80,7 +80,7 @@ $(document).ready ->
     longmsg = shortmsg = row['msg']
     if row['msg'].indexOf('\n') >= 0
       msg = shortmsg = row['msg'].substring(0,row['msg'].indexOf('\n'))
-      longmsg = row['msg'].replace('\n','<br/>')
+      longmsg = row['msg'].replace(/\n/g,'<br/>')
     else
       msg = row['msg']
     tr.append($('<td></td>').html(msg))
@@ -88,10 +88,10 @@ $(document).ready ->
     tr.data('longmsg', longmsg)
     tr.data('shortmsg', shortmsg)
     tr.mouseenter ->
-      if $(@).data('longmsg') is not $(@).data('shortmsg')
+      if $(@).data('longmsg') isnt $(@).data('shortmsg')
         $(@).find('td:last').empty().html($(@).data('longmsg'))
     tr.mouseleave ->
-      if $(@).data('longmsg') is not $(@).data('shortmsg')
+      if $(@).data('longmsg') isnt $(@).data('shortmsg')
         $(@).find('td:last').empty().html($(@).data('shortmsg'))
 
     $('table').prepend(tr)
