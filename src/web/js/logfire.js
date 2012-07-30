@@ -111,10 +111,10 @@
         var elem;
         elem = $(this).find('.msg');
         if ($(this).data('longmsg') !== $(this).data('shortmsg')) {
-          if (elem.html() === $(this).data('longmsg')) {
-            return $(this).find('.msg').empty().html($(this).data('shortmsg'));
+          if (elem.data('isExpanded')) {
+            return elem.empty().html($(this).data('shortmsg')).data('isExpanded', false);
           } else {
-            return $(this).find('.msg').empty().html($(this).data('longmsg'));
+            return elem.empty().html($(this).data('longmsg')).data('isExpanded', true);
           }
         }
       });

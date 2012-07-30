@@ -91,10 +91,10 @@ $(document).ready ->
     tr.click ->
       elem = $(@).find('.msg')
       if $(@).data('longmsg') isnt $(@).data('shortmsg')
-        if elem.html() is $(@).data('longmsg')
-          $(@).find('.msg').empty().html($(@).data('shortmsg'))
+        if elem.data('isExpanded')
+          elem.empty().html($(@).data('shortmsg')).data('isExpanded', false)
         else
-          $(@).find('.msg').empty().html($(@).data('longmsg'))
+          elem.empty().html($(@).data('longmsg')).data('isExpanded', true)
 
     if longmsg isnt shortmsg
       tr.find('.msg').css('cursor','pointer')
