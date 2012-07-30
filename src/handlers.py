@@ -35,35 +35,6 @@ class MainHandler(web.RequestHandler):
     )
     self.write(index_template.generate(**params))
 
-  '''
-  def post(self):
-    components = self.get_argument('components', None)
-    levels = self.get_argument('levels', None)
-    limit = self.get_argument('limit', 25)
-    offset = self.get_argument('offset', 0)
-    spec = dict()
-    if components:
-      comp = map(str, components.split(','))
-      spec['comp'] = {'$in':comp}
-    if levels:
-      lvl = map(lambda x: LEVELS[x], levels.split(','))
-      spec['lvl'] = {'$in':lvl}
-    rows = [
-      dict(
-        tstamp = str(r['tstamp']),
-        lvl = r['lvl'],
-        comp = r['comp'],
-        msg = r['msg'],
-      ) for r in db 
-        .find(spec, skip=int(offset), limit=int(limit))
-        .sort('tstamp',direction=DESCENDING)]
-
-    self.write(dict(result='SUCCESS',rows=rows))
-  '''
-
-  def get_cache_time(self, path, modified, mime_type):
-    return 0
-
 def tailThread(spec=None, handler=None):
   from time import sleep
   myid = str(thread.get_ident())
