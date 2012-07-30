@@ -2,7 +2,7 @@
 import json
 import thread
 from threading import Thread
-from tornado import web, template, websocket
+from tornado import web, auth, template, websocket
 from common import get_db, LEVELS, json_, stop_signal
 from pymongo import DESCENDING
 
@@ -16,6 +16,19 @@ levels = map(lambda x: LEVELS[x], db.distinct('lvl'))
 
 class MainHandler(web.RequestHandler):
   def get(self):
+
+    authgmaillist = self.application.settings['authgmaillist']
+
+    # Check if Authorization is required
+    if len(authgmaillist) > 0:
+      usergmail = self.get_secure_cookie('_userid_')
+      if not usergmail:
+        self.redirect('/login')
+        return
+
+      if usergmail not in authgmaillist:
+        raise web.HTTPError(403, 'You are not authorized')
+
     params = dict(
       components = components,
       levels = levels,
@@ -105,3 +118,21 @@ class RTHandler(websocket.WebSocketHandler):
 
   def on_close(self):
     stop_signal[self.poller_id] = True
+
+
+class GoogleAuthHandler(
+  web.RequestHandler, auth.GoogleMixin):
+  @web.asynchronous
+  def get(self):
+    if self.get_argument("openid.mode", None):
+      self.get_authenticated_user(self.async_callback(self._on_auth))
+      return
+    self.authenticate_redirect()
+
+  def _on_auth(self, user):
+    if not user:
+      print 'No GMail ID found'
+      raise web.HTTPError(500)
+ 
+    self.set_secure_cookie("_userid_", user['email'])
+    self.redirect('/')

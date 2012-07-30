@@ -25,6 +25,11 @@ def main():
     type=int, default=7095)
   parser.add_argument('--comp', help="Component filter for --tail")
 
+  parser.add_argument('--cookiesecret',
+    help="Cookie secret if authentication is enabled")
+  parser.add_argument('--authgmaillist',
+    help="Comma separated list of gmail accounts authorized to access")
+
   args = parser.parse_args()
 
   if args.listen:

@@ -7,11 +7,20 @@ def serve(args):
   from common import get_db
   get_db(args.mongohost)
 
-  from handlers import MainHandler, RTHandler
+  from handlers import MainHandler, RTHandler, GoogleAuthHandler
 
-  settings = dict(debug=True)
+  if args.authgmaillist and not args.cookiesecret:
+    print '--cookiesecret required with --authgmaillist'
+    return
+
+  settings = dict(
+    debug = True,
+    cookie_secret = args.cookiesecret,
+    authgmaillist = args.authgmaillist.split(',') if args.authgmaillist else []
+  )
   handler_list = [
     ( '/', MainHandler ),
+    ( '/login', GoogleAuthHandler ),
     ( '/rt', RTHandler ),
     ( '/web/(.*)', web.StaticFileHandler, {"path": "./web"}),
   ]
