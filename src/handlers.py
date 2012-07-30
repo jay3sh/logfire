@@ -89,7 +89,7 @@ class RTHandler(websocket.WebSocketHandler):
           .find(spec, skip=int(offset), limit=int(limit))
           .sort('tstamp',direction=DESCENDING)]
 
-      for doc in docs:
+      for doc in reversed(docs):
         self.write_message(json_(
           comp=doc['comp'],
           lvl=doc['lvl'],

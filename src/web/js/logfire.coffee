@@ -70,20 +70,22 @@ $(document).ready ->
     labelOn : 'Auto'
     labelOff : 'Manual'
     click : (newChoice) ->
-      if newChoice is not rtChoice
+      if newChoice is not window.rtChoice
+        filters = getFilters()
         if newChoice
-          filters = getFilters()
           startRealTimeTailing(
             if filters.comp.length > 0 then String(filters.comp) else '',
             if filters.lvl.length > 0 then String(filters.lvl) else '',
           )
+          $('#refresh').attr('disabled',true)
         else
           stopRealTimeTailing()
           onetimeQuery(
             if filters.comp.length > 0 then String(filters.comp) else '',
             if filters.lvl.length > 0 then String(filters.lvl) else '',
           )
-      rtChoice = newChoice
+          $('#refresh').attr('disabled',false)
+      window.rtChoice = newChoice
         
   })
   $('#rtchoice').iButton('toggle', false)
@@ -103,5 +105,12 @@ $(document).ready ->
         if filters.lvl.length > 0 then String(filters.lvl) else '',
       )
 
+  $('#refresh').click () ->
+    filters = getFilters()
+    onetimeQuery(
+      if filters.comp.length > 0 then String(filters.comp) else '',
+      if filters.lvl.length > 0 then String(filters.lvl) else '',
+    )
+    
 window.onbeforeunload = ->
   if window.rtsocket then window.rtsocket.close()

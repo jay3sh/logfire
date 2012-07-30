@@ -87,20 +87,22 @@
       labelOff: 'Manual',
       click: function(newChoice) {
         var filters;
-        if (newChoice === !rtChoice) {
+        if (newChoice === !window.rtChoice) {
+          filters = getFilters();
           if (newChoice) {
-            filters = getFilters();
             startRealTimeTailing(filters.comp.length > 0 ? String(filters.comp) : '', filters.lvl.length > 0 ? String(filters.lvl) : '');
+            $('#refresh').attr('disabled', true);
           } else {
             stopRealTimeTailing();
             onetimeQuery(filters.comp.length > 0 ? String(filters.comp) : '', filters.lvl.length > 0 ? String(filters.lvl) : '');
+            $('#refresh').attr('disabled', false);
           }
         }
-        return rtChoice = newChoice;
+        return window.rtChoice = newChoice;
       }
     });
     $('#rtchoice').iButton('toggle', false);
-    return $('#filter').chosen().change(function(ev) {
+    $('#filter').chosen().change(function(ev) {
       var filters;
       filters = getFilters();
       if (window.rtChoice) {
@@ -108,6 +110,11 @@
       } else {
         return onetimeQuery(filters.comp.length > 0 ? String(filters.comp) : '', filters.lvl.length > 0 ? String(filters.lvl) : '');
       }
+    });
+    return $('#refresh').click(function() {
+      var filters;
+      filters = getFilters();
+      return onetimeQuery(filters.comp.length > 0 ? String(filters.comp) : '', filters.lvl.length > 0 ? String(filters.lvl) : '');
     });
   });
 
