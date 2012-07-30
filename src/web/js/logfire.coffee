@@ -1,9 +1,9 @@
 
 
-refresh = (components, levels) ->
+onetimeQuery = (components, levels) ->
   $('table').empty()
   msg = {
-    cmd : 'refresh'
+    cmd : 'onetime'
     comp : String(components)
     lvl : String(levels)
     limit : 25
@@ -11,6 +11,40 @@ refresh = (components, levels) ->
   }
   msg = JSON.stringify(msg)
   rtsocket.send(msg)
+
+startRealTimeTailing = (components, levels) ->
+  $('table').empty()
+  msg = {
+    cmd : 'startRT'
+    comp : String(components)
+    lvl : String(levels)
+    limit : 25
+    offset : 0
+  }
+  msg = JSON.stringify(msg)
+  rtsocket.send(msg)
+
+stopRealTimeTailing = (components, levels) ->
+  msg = {
+    cmd : 'stopRT'
+  }
+  msg = JSON.stringify(msg)
+  rtsocket.send(msg)
+
+getFilters = () ->
+  comp = []
+  lvl = []
+  filters = $('#filter').val()
+  if filters
+    for filter in filters
+      if filter in levels
+        lvl.push(filter)
+      else
+        comp.push(filter)
+  return { comp : comp, lvl : lvl }
+
+rtChoice = false
+levels = null
 
 $(document).ready ->
 
@@ -33,25 +67,41 @@ $(document).ready ->
   levels = $('optgroup[label=Levels] option').map (i,el)->$(el).text()
 
   $('#rtchoice').iButton({
-    labelOn : 'RealTime',
+    labelOn : 'Auto'
     labelOff : 'Manual'
+    click : (newChoice) ->
+      if newChoice is not rtChoice
+        if newChoice
+          filters = getFilters()
+          startRealTimeTailing(
+            if filters.comp.length > 0 then String(filters.comp) else '',
+            if filters.lvl.length > 0 then String(filters.lvl) else '',
+          )
+        else
+          stopRealTimeTailing()
+          onetimeQuery(
+            if filters.comp.length > 0 then String(filters.comp) else '',
+            if filters.lvl.length > 0 then String(filters.lvl) else '',
+          )
+      rtChoice = newChoice
+        
   })
+  $('#rtchoice').iButton('toggle', false)
 
   $('#filter').chosen().change (ev) ->
-    comp = []
-    lvl = []
-    filters = $(@).val()
-    if filters
-      for filter in filters
-        if filter in levels
-          lvl.push(filter)
-        else
-          comp.push(filter)
 
-    refresh(
-      if comp.length > 0 then String(comp) else '',
-      if lvl.length > 0 then String(lvl) else '',
-    )
+    filters = getFilters()
+
+    if window.rtChoice
+      startRealTimeTailing(
+        if filters.comp.length > 0 then String(filters.comp) else '',
+        if filters.lvl.length > 0 then String(filters.lvl) else '',
+      )
+    else
+      onetimeQuery(
+        if filters.comp.length > 0 then String(filters.comp) else '',
+        if filters.lvl.length > 0 then String(filters.lvl) else '',
+      )
 
 window.onbeforeunload = ->
   if window.rtsocket then window.rtsocket.close()

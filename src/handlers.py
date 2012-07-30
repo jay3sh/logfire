@@ -71,14 +71,39 @@ class RTHandler(websocket.WebSocketHandler):
     self.poller_id = None
 
   def on_message(self, message):
+
     msg = json.loads(message)
-    if msg['cmd'] == 'refresh':
+
+    if msg['cmd'] == 'onetime':
+
+      limit = self.get_argument('limit', 25)
+      offset = self.get_argument('offset', 0)
+      spec = self.makeSpec(msg['comp'],msg['lvl'])
+      docs = [
+        dict(
+          tstamp = str(r['tstamp']),
+          lvl = r['lvl'],
+          comp = r['comp'],
+          msg = r['msg'],
+        ) for r in db 
+          .find(spec, skip=int(offset), limit=int(limit))
+          .sort('tstamp',direction=DESCENDING)]
+
+      for doc in docs:
+        self.write_message(json_(
+          comp=doc['comp'],
+          lvl=doc['lvl'],
+          msg=doc['msg'],
+          tstamp=str(doc['tstamp'])))
+
+    if msg['cmd'] == 'startRT':
 
       # Stop current poller thread
       if self.poller_id:
         stop_signal[self.poller_id] = True 
         self.poller.join()
 
+      # Start new poller thread with modified spec
       spec = self.makeSpec(msg['comp'],msg['lvl'])
       self.poller = Thread(target=tailThread,
         kwargs=dict(spec=spec,handler=self))
@@ -86,6 +111,14 @@ class RTHandler(websocket.WebSocketHandler):
       self.poller.start()
       self.poller_id = str(self.poller.ident)
       stop_signal[self.poller_id] = False
+
+    elif msg['cmd'] == 'stopRT':
+
+      # Stop current poller thread
+      if self.poller_id:
+        stop_signal[self.poller_id] = True 
+        self.poller.join()
+
 
   def on_close(self):
     stop_signal[self.poller_id] = True

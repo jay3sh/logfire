@@ -1,12 +1,12 @@
 (function() {
-  var refresh,
+  var getFilters, levels, onetimeQuery, rtChoice, startRealTimeTailing, stopRealTimeTailing,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
-  refresh = function(components, levels) {
+  onetimeQuery = function(components, levels) {
     var msg;
     $('table').empty();
     msg = {
-      cmd: 'refresh',
+      cmd: 'onetime',
       comp: String(components),
       lvl: String(levels),
       limit: 25,
@@ -16,8 +16,56 @@
     return rtsocket.send(msg);
   };
 
+  startRealTimeTailing = function(components, levels) {
+    var msg;
+    $('table').empty();
+    msg = {
+      cmd: 'startRT',
+      comp: String(components),
+      lvl: String(levels),
+      limit: 25,
+      offset: 0
+    };
+    msg = JSON.stringify(msg);
+    return rtsocket.send(msg);
+  };
+
+  stopRealTimeTailing = function(components, levels) {
+    var msg;
+    msg = {
+      cmd: 'stopRT'
+    };
+    msg = JSON.stringify(msg);
+    return rtsocket.send(msg);
+  };
+
+  getFilters = function() {
+    var comp, filter, filters, lvl, _i, _len;
+    comp = [];
+    lvl = [];
+    filters = $('#filter').val();
+    if (filters) {
+      for (_i = 0, _len = filters.length; _i < _len; _i++) {
+        filter = filters[_i];
+        if (__indexOf.call(levels, filter) >= 0) {
+          lvl.push(filter);
+        } else {
+          comp.push(filter);
+        }
+      }
+    }
+    return {
+      comp: comp,
+      lvl: lvl
+    };
+  };
+
+  rtChoice = false;
+
+  levels = null;
+
   $(document).ready(function() {
-    var levels, socket;
+    var socket;
     socket = new WebSocket("ws://" + window.location.host + "/rt");
     socket.onopen = function(ev) {};
     socket.onclose = function(ev) {};
@@ -35,25 +83,31 @@
       return $(el).text();
     });
     $('#rtchoice').iButton({
-      labelOn: 'RealTime',
-      labelOff: 'Manual'
-    });
-    return $('#filter').chosen().change(function(ev) {
-      var comp, filter, filters, lvl, _i, _len;
-      comp = [];
-      lvl = [];
-      filters = $(this).val();
-      if (filters) {
-        for (_i = 0, _len = filters.length; _i < _len; _i++) {
-          filter = filters[_i];
-          if (__indexOf.call(levels, filter) >= 0) {
-            lvl.push(filter);
+      labelOn: 'Auto',
+      labelOff: 'Manual',
+      click: function(newChoice) {
+        var filters;
+        if (newChoice === !rtChoice) {
+          if (newChoice) {
+            filters = getFilters();
+            startRealTimeTailing(filters.comp.length > 0 ? String(filters.comp) : '', filters.lvl.length > 0 ? String(filters.lvl) : '');
           } else {
-            comp.push(filter);
+            stopRealTimeTailing();
+            onetimeQuery(filters.comp.length > 0 ? String(filters.comp) : '', filters.lvl.length > 0 ? String(filters.lvl) : '');
           }
         }
+        return rtChoice = newChoice;
       }
-      return refresh(comp.length > 0 ? String(comp) : '', lvl.length > 0 ? String(lvl) : '');
+    });
+    $('#rtchoice').iButton('toggle', false);
+    return $('#filter').chosen().change(function(ev) {
+      var filters;
+      filters = getFilters();
+      if (window.rtChoice) {
+        return startRealTimeTailing(filters.comp.length > 0 ? String(filters.comp) : '', filters.lvl.length > 0 ? String(filters.lvl) : '');
+      } else {
+        return onetimeQuery(filters.comp.length > 0 ? String(filters.comp) : '', filters.lvl.length > 0 ? String(filters.lvl) : '');
+      }
     });
   });
 
