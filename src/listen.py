@@ -25,6 +25,6 @@ def listen(args):
       level = int(match.group(2))
       message = match.group(3)
       db.insert(dict(
-        tstamp=datetime.now(),comp=component,lvl=level,msg=message))
+        tstamp=datetime.utcnow(),comp=component,lvl=level,msg=message))
     except Exception, e:
       print e, packet
