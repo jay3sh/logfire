@@ -1,4 +1,5 @@
 
+import re
 import json
 import thread
 from threading import Thread
@@ -89,6 +90,30 @@ class RTHandler(websocket.WebSocketHandler):
           .find(spec, skip=int(offset), limit=int(limit))
           .sort('tstamp',direction=DESCENDING)]
 
+      for doc in reversed(docs):
+        self.write_message(json_(
+          comp=doc['comp'],
+          lvl=doc['lvl'],
+          msg=doc['msg'],
+          tstamp=str(doc['tstamp'])))
+
+    if msg['cmd'] == 'search':
+
+      query = msg.get('query')
+      limit = msg.get('limit', 25)
+      offset = msg.get('offset', 0)
+      spec = dict(msg=re.compile('.*'+query+'.*'))
+      docs = [
+        dict(
+          tstamp = str(r['tstamp']),
+          lvl = r['lvl'],
+          comp = r['comp'],
+          msg = r['msg'],
+        ) for r in db 
+          .find(spec, skip=int(offset), limit=int(limit))
+          .sort('tstamp',direction=DESCENDING)]
+
+      print len(docs)
       for doc in reversed(docs):
         self.write_message(json_(
           comp=doc['comp'],

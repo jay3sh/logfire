@@ -63,6 +63,14 @@ getFilters = () ->
         comp.push(filter)
   return { comp : comp, lvl : lvl }
 
+search = (query) ->
+  msg = {
+    cmd : 'search'
+    query : query
+  }
+  msg = JSON.stringify(msg)
+  rtsocket.send(msg)
+
 rtChoice = false
 levels = null
 
@@ -176,5 +184,8 @@ $(document).ready ->
     )
     $(document).data('page',Math.max(0,page-1))
     
+  $('input[name=search]').click () ->
+    search($('input[name=searchquery]').val())
+
 window.onbeforeunload = ->
   if window.rtsocket then window.rtsocket.close()

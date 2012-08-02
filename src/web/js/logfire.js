@@ -1,5 +1,5 @@
 (function() {
-  var getFilters, levels, msgcolors, onetimeQuery, rtChoice, startRealTimeTailing, stopRealTimeTailing,
+  var getFilters, levels, msgcolors, onetimeQuery, rtChoice, search, startRealTimeTailing, stopRealTimeTailing,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   Date.prototype.getRelativeTimestamp = function() {
@@ -81,6 +81,16 @@
       comp: comp,
       lvl: lvl
     };
+  };
+
+  search = function(query) {
+    var msg;
+    msg = {
+      cmd: 'search',
+      query: query
+    };
+    msg = JSON.stringify(msg);
+    return rtsocket.send(msg);
   };
 
   rtChoice = false;
@@ -172,12 +182,15 @@
       onetimeQuery(filters.comp.length > 0 ? String(filters.comp) : '', filters.lvl.length > 0 ? String(filters.lvl) : '', (page + 1) * 25);
       return $(document).data('page', page + 1);
     });
-    return $('#prev').click(function() {
+    $('#prev').click(function() {
       var filters, page;
       filters = getFilters();
       page = $(document).data('page');
       onetimeQuery(filters.comp.length > 0 ? String(filters.comp) : '', filters.lvl.length > 0 ? String(filters.lvl) : '', Math.max(page - 1, 0) * 25);
       return $(document).data('page', Math.max(0, page - 1));
+    });
+    return $('input[name=search]').click(function() {
+      return search($('input[name=searchquery]').val());
     });
   });
 
