@@ -63,10 +63,14 @@ getFilters = () ->
         comp.push(filter)
   return { comp : comp, lvl : lvl }
 
-search = (query) ->
+search = (query, offset) ->
+  console.log query, offset
+  $('table').empty()
   msg = {
     cmd : 'search'
     query : query
+    offset : offset or 0
+    limit : 25
   }
   msg = JSON.stringify(msg)
   rtsocket.send(msg)
@@ -166,22 +170,30 @@ $(document).ready ->
   $('#next').click () ->
     filters = getFilters()
     page = $(document).data('page') || 0
-    console.log page
-    onetimeQuery(
-      if filters.comp.length > 0 then String(filters.comp) else '',
-      if filters.lvl.length > 0 then String(filters.lvl) else '',
-      (page+1) * 25
-    )
+    
+    searchquery = $('input[name=searchquery]').val()
+    if searchquery
+      search(searchquery, (page+1) * 25)
+    else
+      onetimeQuery(
+        if filters.comp.length > 0 then String(filters.comp) else '',
+        if filters.lvl.length > 0 then String(filters.lvl) else '',
+        (page+1) * 25
+      )
     $(document).data('page',page+1)
 
   $('#prev').click () ->
     filters = getFilters()
     page = $(document).data('page')
-    onetimeQuery(
-      if filters.comp.length > 0 then String(filters.comp) else '',
-      if filters.lvl.length > 0 then String(filters.lvl) else '',
-      Math.max(page-1,0) * 25
-    )
+    searchquery = $('input[name=searchquery]').val()
+    if searchquery
+      search(searchquery, Math.max(page-1,0) * 25)
+    else
+      onetimeQuery(
+        if filters.comp.length > 0 then String(filters.comp) else '',
+        if filters.lvl.length > 0 then String(filters.lvl) else '',
+        Math.max(page-1,0) * 25
+      )
     $(document).data('page',Math.max(0,page-1))
     
   $('input[name=search]').click () ->

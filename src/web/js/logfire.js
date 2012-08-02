@@ -83,11 +83,15 @@
     };
   };
 
-  search = function(query) {
+  search = function(query, offset) {
     var msg;
+    console.log(query, offset);
+    $('table').empty();
     msg = {
       cmd: 'search',
-      query: query
+      query: query,
+      offset: offset || 0,
+      limit: 25
     };
     msg = JSON.stringify(msg);
     return rtsocket.send(msg);
@@ -175,18 +179,27 @@
       return $(document).data('page', 0);
     });
     $('#next').click(function() {
-      var filters, page;
+      var filters, page, searchquery;
       filters = getFilters();
       page = $(document).data('page') || 0;
-      console.log(page);
-      onetimeQuery(filters.comp.length > 0 ? String(filters.comp) : '', filters.lvl.length > 0 ? String(filters.lvl) : '', (page + 1) * 25);
+      searchquery = $('input[name=searchquery]').val();
+      if (searchquery) {
+        search(searchquery, (page + 1) * 25);
+      } else {
+        onetimeQuery(filters.comp.length > 0 ? String(filters.comp) : '', filters.lvl.length > 0 ? String(filters.lvl) : '', (page + 1) * 25);
+      }
       return $(document).data('page', page + 1);
     });
     $('#prev').click(function() {
-      var filters, page;
+      var filters, page, searchquery;
       filters = getFilters();
       page = $(document).data('page');
-      onetimeQuery(filters.comp.length > 0 ? String(filters.comp) : '', filters.lvl.length > 0 ? String(filters.lvl) : '', Math.max(page - 1, 0) * 25);
+      searchquery = $('input[name=searchquery]').val();
+      if (searchquery) {
+        search(searchquery, Math.max(page - 1, 0) * 25);
+      } else {
+        onetimeQuery(filters.comp.length > 0 ? String(filters.comp) : '', filters.lvl.length > 0 ? String(filters.lvl) : '', Math.max(page - 1, 0) * 25);
+      }
       return $(document).data('page', Math.max(0, page - 1));
     });
     return $('input[name=search]').click(function() {
