@@ -17,6 +17,8 @@ table .tstamp {
 }
 table .msg {
   font-family: courier;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 table .comp {
   font-size: 85%;
