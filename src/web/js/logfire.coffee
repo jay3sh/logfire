@@ -20,14 +20,14 @@ Date.prototype.getRelativeTimestamp = ->
 
 msgcolors = ['#999','#000','#520202','#A70505','#F00']
 
-onetimeQuery = (components, levels) ->
+onetimeQuery = (components, levels, offset) ->
   $('table').empty()
   msg = {
     cmd : 'onetime'
     comp : String(components)
     lvl : String(levels)
     limit : 25
-    offset : 0
+    offset : offset or 0
   }
   msg = JSON.stringify(msg)
   rtsocket.send(msg)
@@ -153,6 +153,28 @@ $(document).ready ->
       if filters.comp.length > 0 then String(filters.comp) else '',
       if filters.lvl.length > 0 then String(filters.lvl) else '',
     )
+    $(document).data('page',0)
+
+  $('#next').click () ->
+    filters = getFilters()
+    page = $(document).data('page') || 0
+    console.log page
+    onetimeQuery(
+      if filters.comp.length > 0 then String(filters.comp) else '',
+      if filters.lvl.length > 0 then String(filters.lvl) else '',
+      (page+1) * 25
+    )
+    $(document).data('page',page+1)
+
+  $('#prev').click () ->
+    filters = getFilters()
+    page = $(document).data('page')
+    onetimeQuery(
+      if filters.comp.length > 0 then String(filters.comp) else '',
+      if filters.lvl.length > 0 then String(filters.lvl) else '',
+      Math.max(page-1,0) * 25
+    )
+    $(document).data('page',Math.max(0,page-1))
     
 window.onbeforeunload = ->
   if window.rtsocket then window.rtsocket.close()

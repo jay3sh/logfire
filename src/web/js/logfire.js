@@ -25,7 +25,7 @@
 
   msgcolors = ['#999', '#000', '#520202', '#A70505', '#F00'];
 
-  onetimeQuery = function(components, levels) {
+  onetimeQuery = function(components, levels, offset) {
     var msg;
     $('table').empty();
     msg = {
@@ -33,7 +33,7 @@
       comp: String(components),
       lvl: String(levels),
       limit: 25,
-      offset: 0
+      offset: offset || 0
     };
     msg = JSON.stringify(msg);
     return rtsocket.send(msg);
@@ -158,10 +158,26 @@
         return onetimeQuery(filters.comp.length > 0 ? String(filters.comp) : '', filters.lvl.length > 0 ? String(filters.lvl) : '');
       }
     });
-    return $('#refresh').click(function() {
+    $('#refresh').click(function() {
       var filters;
       filters = getFilters();
-      return onetimeQuery(filters.comp.length > 0 ? String(filters.comp) : '', filters.lvl.length > 0 ? String(filters.lvl) : '');
+      onetimeQuery(filters.comp.length > 0 ? String(filters.comp) : '', filters.lvl.length > 0 ? String(filters.lvl) : '');
+      return $(document).data('page', 0);
+    });
+    $('#next').click(function() {
+      var filters, page;
+      filters = getFilters();
+      page = $(document).data('page') || 0;
+      console.log(page);
+      onetimeQuery(filters.comp.length > 0 ? String(filters.comp) : '', filters.lvl.length > 0 ? String(filters.lvl) : '', (page + 1) * 25);
+      return $(document).data('page', page + 1);
+    });
+    return $('#prev').click(function() {
+      var filters, page;
+      filters = getFilters();
+      page = $(document).data('page');
+      onetimeQuery(filters.comp.length > 0 ? String(filters.comp) : '', filters.lvl.length > 0 ? String(filters.lvl) : '', Math.max(page - 1, 0) * 25);
+      return $(document).data('page', Math.max(0, page - 1));
     });
   });
 
