@@ -1,5 +1,5 @@
 (function() {
-  var getFilters, levels, msgcolors, onetimeQuery, rtChoice, search, startRealTimeTailing, stopRealTimeTailing,
+  var getFilters, levels, msgcolors, onetimeQuery, rtChoice, search, startRealTimeTailing, stopRealTimeTailing, updateTimestamps,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   Date.prototype.getRelativeTimestamp = function() {
@@ -24,6 +24,14 @@
   };
 
   msgcolors = ['#999', '#000', '#520202', '#A70505', '#F00'];
+
+  updateTimestamps = function() {
+    return $.each($('table').find('tr'), function() {
+      var tstamp;
+      tstamp = new Date(Date.parse($(this).data('tstamp'))).getRelativeTimestamp();
+      return $(this).find('.tstamp').text(tstamp);
+    });
+  };
 
   onetimeQuery = function(components, levels, offset) {
     var msg;
@@ -121,6 +129,7 @@
       tr.append($('<td></td>').html(msg).addClass('msg'));
       tr.data('longmsg', longmsg);
       tr.data('shortmsg', shortmsg);
+      tr.data('tstamp', row['tstamp']);
       tr.click(function() {
         var elem;
         elem = $(this).find('.msg');
@@ -202,9 +211,10 @@
       }
       return $(document).data('page', Math.max(0, page - 1));
     });
-    return $('input[name=search]').click(function() {
+    $('input[name=search]').click(function() {
       return search($('input[name=searchquery]').val());
     });
+    return setInterval(updateTimestamps, 30 * 1000);
   });
 
   window.onbeforeunload = function() {

@@ -20,6 +20,12 @@ Date.prototype.getRelativeTimestamp = ->
 
 msgcolors = ['#999','#000','#520202','#A70505','#F00']
 
+updateTimestamps = () ->
+  $.each($('table').find('tr'), () ->
+    tstamp = new Date(Date.parse($(@).data('tstamp'))).getRelativeTimestamp()
+    $(@).find('.tstamp').text(tstamp)
+  )
+
 onetimeQuery = (components, levels, offset) ->
   $('table').empty()
   msg = {
@@ -100,6 +106,7 @@ $(document).ready ->
 
     tr.data('longmsg', longmsg)
     tr.data('shortmsg', shortmsg)
+    tr.data('tstamp', row['tstamp'])
     tr.click ->
       elem = $(@).find('.msg')
       if $(@).data('longmsg') isnt $(@).data('shortmsg')
@@ -198,6 +205,8 @@ $(document).ready ->
     
   $('input[name=search]').click () ->
     search($('input[name=searchquery]').val())
+
+  setInterval(updateTimestamps, 30*1000)
 
 window.onbeforeunload = ->
   if window.rtsocket then window.rtsocket.close()
